@@ -1,8 +1,10 @@
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from 'firebase/auth';
 import React, { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import app from '../firebase/firebase.init';
 
-const auth = getAuth();
+const auth = getAuth(app);
 
 const BootstrapRegister = () => {
     const [passwordError, setPasswordError] = useState('');
@@ -36,6 +38,7 @@ const BootstrapRegister = () => {
                 console.log(user)
                 setRegisterSuccess(true)
                 form.reset()
+                verifyEmail()
             })
             .catch(error => {
                 console.error('error', error)
@@ -43,8 +46,16 @@ const BootstrapRegister = () => {
             })
     }
 
+    const verifyEmail = () => {
+        sendEmailVerification(auth.currentUser)
+            .then(() => {
+                alert('Please check your email and verify')
+            });
+    }
+
     return (
         <div className='w-50 mx-auto'>
+            <h2>Please Register....!!!</h2>
             <Form onSubmit={handleSubmitRegister}>
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Email address</Form.Label>
@@ -65,6 +76,7 @@ const BootstrapRegister = () => {
                     Register
                 </Button>
             </Form>
+            <p><small>Already have an account? Please <Link to='/login'>Login</Link></small></p>
         </div>
     );
 };
