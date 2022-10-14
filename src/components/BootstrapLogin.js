@@ -1,4 +1,4 @@
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -8,6 +8,8 @@ const auth = getAuth(app)
 
 const BootstrapLogin = () => {
     const [success, setSuccess] = useState(false)
+    const [userEmail, setUserEmail] = useState('');
+
     const handleSubmit = event => {
         event.preventDefault()
         setSuccess(false)
@@ -26,13 +28,33 @@ const BootstrapLogin = () => {
                 console.error('error', error)
             })
     }
+
+
+    const handleEmailBlur = event => {
+        const email = event.target.value;
+        setUserEmail(email);
+    }
+
+    const handleForgetPassword = () => {
+        if (!userEmail) {
+            alert('Please enter your email')
+            return;
+        }
+        sendPasswordResetEmail(auth, userEmail)
+            .then(() => {
+                alert('Password reset email sent. Please check your email')
+            })
+            .catch((error) => {
+                console.error('error', error)
+            });
+    }
     return (
         <div className='w-50 mx-auto'>
             <h2>Please Login!!!</h2>
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Email address</Form.Label>
-                    <Form.Control type="email" name='email' placeholder="Enter email" required />
+                    <Form.Control onBlur={handleEmailBlur} type="email" name='email' placeholder="Enter email" required />
 
                 </Form.Group>
 
@@ -50,6 +72,7 @@ const BootstrapLogin = () => {
                 </Button>
             </Form>
             <p><small>New to this website? Please <Link to='/register'>Register</Link></small></p>
+            <p><small>Forget Password?<Button onClick={handleForgetPassword}>Reset password</Button></small></p>
         </div>
     );
 };
